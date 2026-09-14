@@ -1,4 +1,4 @@
-# GENTWO ~ease of writing~
+# GENTWO |ease of writing|
 
 ## 1. USE LANGUAGES
 **1. NIM**
