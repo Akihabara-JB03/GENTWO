@@ -1,0 +1,36 @@
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TokenType {
+    GT_SET,
+    GT_TO,
+    GT_PERIOD,
+    GT_NUL,
+    GT_IDENT,
+    GT_INT,
+    GT_COMPARE,
+    GT_EQ,
+    GT_EXIT,
+    GT_FLOAT,
+    GT_STRING,
+    GT_PLUS,
+    GT_MINUS,
+    GT_DIVISION,
+    GT_TIMES,
+    GT_INDENT,
+    GT_DEDENT,
+    GT_DISPLAYS,
+    GT_COMMENT,
+    GT_LOAD,
+    GT_LP,
+    GT_RP,
+    GT_DEF,
+    GT_FUNC,
+    GT_OVER,
+    GT_UNDER,
+    GT_OR,
+    GT_AND,
+    GT_NOT,
+    GT_RETURN,
+}
+pub struct Token {
+    
+}
