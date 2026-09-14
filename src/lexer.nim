@@ -19,7 +19,6 @@ type
         GT_INDENT,
         GT_DEDENT,
         GT_DISPLAYS,
-        GT_NEQ,
         GT_COMMENT,
         GT_LOAD,
         GT_LP, #Left Paren
@@ -27,11 +26,15 @@ type
         GT_DEF,
         GT_FUNC,
         GT_OVER,
-        GT_UNDER
+        GT_UNDER,
+        GT_OR,
+        GT_AND,
+        GT_NOT,
+        GT_RETURN
     Token* = object
         kind*: TokenType
         literal*: string
-proc tokenize*(source: string): seq[Token] =
+proc tokenize* {.exportc, dynlib.} (source: cstring): seq[Token] =
     var resultTokens: seq[Token] = @[]
     let lines = source.splitLines()
     var previousIndent = 0
@@ -100,8 +103,14 @@ proc tokenize*(source: string): seq[Token] =
                         resultTokens.add(Token(kind:GT_FUNC,literal:"FUNC"))
                     of "EQUAL":
                         resultTokens.add(Token(kind:GT_EQ,literal:"EQUAL"))
-                    of "NOTEQUAL":
-                        resultTokens.add(Token(kind:GT_NEQ,literal:"NOTEQUAL"))
+                    of "NOT":
+                        resultTokens.add(Token(kind:GT_NOT,literal:"NOT"))
+                    of "(":
+                        resultTokens.add(Token(kind:GT_RP,literal:"("))
+                    of ")":
+                        resultTokens.add(Token(kind:GT_LP,literal:")"))
+                    of "RETURN":
+                        resultTokens.add(Token(kind:GT_RETURN,literal:"RETURN"))
                     else:
                         resultTokens.add(Token(kind:GT_IDENT,literal:word))
     return resultTokens
