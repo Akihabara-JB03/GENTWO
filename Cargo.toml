@@ -1,0 +1,10 @@
+toml
+[package]
+name = "gentwo-diagnostics"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ariadne = "0.5"
+[lib]
+crate-type = ["cdylib"]

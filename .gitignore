@@ -1,0 +1,4 @@
+/bin/*.exe
+/bin/*.bin
+/bin/*.a
+/bin/*.o
