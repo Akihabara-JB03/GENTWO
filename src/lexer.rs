@@ -17,7 +17,7 @@ pub struct Lexer<'src> {
 impl<'src> Lexer<'src> {
 
 
-    pub fn lexer_main(src: &str) {
+    pub fn lexer_main(src: &'src str) {
         let mut lexer = Lexer {
             tokens: Vec::new(),
             current: 0,
@@ -25,9 +25,10 @@ impl<'src> Lexer<'src> {
             strmode:false,
             koedame:String::new(),
         };
-        let start = 0;
+        let mut start = 0;
         while !lexer.is_at_end() {
             match lexer.advance() {
+                start = lexer.current;
                 Some(ch) => {
                     match ch {
                         '"' => {
@@ -41,7 +42,7 @@ impl<'src> Lexer<'src> {
                                     span: start..lexer.current,  // 最初の `"` から 最後の `"` までの範囲
                                 });
                             }
-                            start = lexer.current;
+                            
                         }
                         _ if lexer.strmode => {
                             lexer.koedame.push(ch);
@@ -58,23 +59,52 @@ impl<'src> Lexer<'src> {
                         _ if ch.is_alphabetic() => {
                             let mut word = String::new();
                             word.push(ch);
-                            while let Some(next_ch) = self.peek() {
+                            while let Some(next_ch) = lexer.peek() {
                                 if next_ch.is_alphanumeric() {
-                                    word.push(self.advance().unwrap());
+                                    word.push(lexer.advance().unwrap());
                                 } else {
                                     break;
                                 }
-                                let kind = match word.as_str() {
-                                    "SET" => TokenType::SET,
-                                    "TO" => TokenType::TO,
-                                    _ => TokenType::GT_IDENT,
-                                };
-                                self.tokens.push(Token {
-                                    kind,
-                                    literal: word,
-                                    span: start..self.current,
-                                });
                             }
+                            let kind = match word.as_str() {
+                                "SET" => TokenType::GT_SET,
+                                "TO" => TokenType::GT_TO,
+                                "COMPARE" => TokenType::GT_COMPARE,
+                                "DEFINE" => TokenType::GT_DEF,
+                                "FUNCTION" => TokenType::GT_FUNC,
+                                "NULL" => TokenType::GT_NUL,
+                                "INT" => TokenType::GT_SFY_INT,
+                                "DISPLAYS" => TokenType::GT_DISPLAYS,
+                                "FLOAT" => TokenType::GT_SFY_FLOAT,
+                                "STRING" => TokenType::GT_SFY_STRING,
+                                "EQUAL" => TokenType::GT_EQ,
+                                _ => TokenType::GT_IDENT,
+                            };
+                            lexer.tokens.push(Token {
+                                kind,
+                                literal: word,
+                                span: start..lexer.current,
+                            });
+                            
+                        }
+                        _ if ch.is_ascii_digit() => {
+                            let mut num = String::new();
+                            num.push(ch); // 最初の1文字
+
+                            while let Some(next_ch) = lexer.peek() {
+                                if next_ch.is_ascii_digit() {
+                                    num.push(lexer.advance().unwrap());
+                                } else {
+                                    break;
+                                }
+                            }
+
+                            // 読み終わったらトークンにする
+                            lexer.tokens.push(Token {
+                                kind: TokenType::GT_INT,
+                                literal: num,
+                                span: start..lexer.current,
+                            });
                         }
                     }
                 }
@@ -82,6 +112,7 @@ impl<'src> Lexer<'src> {
                     break;
                 }
             }
+
         }
     }
     pub fn is_at_end(&self) -> bool {
@@ -96,7 +127,7 @@ impl<'src> Lexer<'src> {
         self.current += ch.len_utf8();
         Some(ch)
     }
-    pub fn peek(&mut self) -> Option<char> {
+    pub fn peek(&self) -> Option<char> {
         let ch = self.source[self.current..].chars().next()?;
         Some(ch)
     }
