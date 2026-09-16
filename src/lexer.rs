@@ -17,7 +17,7 @@ pub struct Lexer<'src> {
 impl<'src> Lexer<'src> {
 
 
-    pub fn lexer_main(src: &'src str) {
+    pub fn lexer_main(src: &'src str) -> Vec<Token> {
         let mut lexer = Lexer {
             tokens: Vec::new(),
             current: 0,
@@ -27,8 +27,8 @@ impl<'src> Lexer<'src> {
         };
         let mut start = 0;
         while !lexer.is_at_end() {
+            start = lexer.current;
             match lexer.advance() {
-                start = lexer.current;
                 Some(ch) => {
                     match ch {
                         '"' => {
@@ -78,6 +78,12 @@ impl<'src> Lexer<'src> {
                                 "FLOAT" => TokenType::GT_SFY_FLOAT,
                                 "STRING" => TokenType::GT_SFY_STRING,
                                 "EQUAL" => TokenType::GT_EQ,
+                                "NOT" => TokenType::GT_NOT,
+                                "PLUS" => TokenType::GT_PLUS,
+                                "TIMES" => TokenType::GT_TIMES,
+                                "DIV" => TokenType::GT_DIVISION,
+                                "MINUS" => TokenType::GT_MINUS,
+                                "LOAD" => TokenType::GT_LOAD,
                                 _ => TokenType::GT_IDENT,
                             };
                             lexer.tokens.push(Token {
