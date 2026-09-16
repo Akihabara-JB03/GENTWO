@@ -92,12 +92,13 @@ impl<' src> Lexer<' src> {
                         _ if ch.is_alphabetic() => {
                             let mut word = String::new();
                             word.push(ch);
-                            while let Some(next_ch) = self.peak();
+                            while let Some(next_ch) = self.peek() {
                                 if next_ch.is_alphanumeric() {
                                     word.push(self.advance().unwrap());
                                 } else {
                                     break;
                                 }
+                            }
                         }
                     }
                 }
