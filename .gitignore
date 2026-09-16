@@ -2,3 +2,4 @@
 /bin/*.bin
 /bin/*.a
 /bin/*.o
+temp/
