@@ -13,16 +13,19 @@ pub struct Lexer<'src> {
     strmode: bool,
     koedame: String,
 }
+pub struct LexerError {
+    pub message: String,
+    pub span: Range<usize>,
+}
 impl<'src> Lexer<'src> {
 
-    pub fn lexer_main(src: &'src str) -> Vec<Token> {
+    pub fn lexer_main(src: &'src str) -> Result<Vec<Token>,LexerError> {
         let mut lexer = Lexer {
             tokens: Vec::new(),
             current: 0,
             source:src,
             strmode:false,
             koedame:String::new(),
-            current_indent: 0,
         };
         let mut start = 0;
         while !lexer.is_at_end() {
@@ -101,7 +104,12 @@ impl<'src> Lexer<'src> {
                             num.push(ch);
                             while let Some(next_ch) = lexer.peek() {
                                 if next_ch.is_ascii_digit() || next_ch == '.' {
-                                    if next_ch == '.' && num.contains('.') { break; }
+                                    if next_ch == '.' && num.contains('.') {
+                                        return Err(LexerError {
+                                            message: "小数点が多すぎます。".to_string(),
+                                            span:start..lexer.current
+                                        });
+                                    }
                                     num.push(lexer.advance().unwrap());
                                 } else {
                                     break;
@@ -124,22 +132,28 @@ impl<'src> Lexer<'src> {
                         '.' => {
                             lexer.tokens.push(Token {
                                 kind: TokenType::GT_PERIOD,
-                                literal: ".".to_string(),                     // 肥溜めに貯まっていた文字列が入る
-                                span: lexer.current,  // 最初の `"` から 最後の `"` までの範囲
+                                literal: ".".to_string(),
+                                span: start..lexer.current,
                             });
                         }
                         '(' => {
                             lexer.tokens.push(Token {
                                 kind: TokenType::GT_LP,
-                                literal: "(".to_string(),                     // 肥溜めに貯まっていた文字列が入る
-                                span: lexer.current,  // 最初の `"` から 最後の `"` までの範囲
+                                literal: "(".to_string(),
+                                span: start..lexer.current,
                             });
                         }
                         ')' => {
                             lexer.tokens.push(Token {
-                                kind: TokenType::GT_LP,
-                                literal: "(".to_string(),                     // 肥溜めに貯まっていた文字列が入る
-                                span: lexer.current,  // 最初の `"` から 最後の `"` までの範囲
+                                kind: TokenType::GT_RP,
+                                literal: ")".to_string(),
+                                span: start..lexer.current,
+                            });
+                        }
+                        _ => {
+                            return Err(LexerError {
+                                message:"文法エラー".to_string(),
+                                span: start..lexer.current
                             });
                         }
                         
@@ -151,7 +165,7 @@ impl<'src> Lexer<'src> {
             }
 
         }
-        return lexer.tokens;
+        return Ok(lexer.tokens);
     }
     pub fn is_at_end(&self) -> bool {
         if (self.current >= self.source.len()) {
