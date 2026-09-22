@@ -3,7 +3,9 @@
 ## 1. USE LANGUAGES
 **~~1. NIM~~**
 
-**1. C++**
+**1. Rust**
+
+**2. C++**
 ## 2. USE STATUS CODE
 | Code | Status |
 | ---- | ---- |
