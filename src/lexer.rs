@@ -1,5 +1,5 @@
-use std::ops::Range;
 use crate::tokentype::TokenType;
+use std::ops::Range;
 
 pub struct Token {
     pub kind: TokenType,
@@ -18,14 +18,13 @@ pub struct LexerError {
     pub span: Range<usize>,
 }
 impl<'src> Lexer<'src> {
-
-    pub fn lexer_main(src: &'src str) -> Result<Vec<Token>,LexerError> {
+    pub fn lexer_main(src: &'src str) -> Result<Vec<Token>, LexerError> {
         let mut lexer = Lexer {
             tokens: Vec::new(),
             current: 0,
-            source:src,
-            strmode:false,
-            koedame:String::new(),
+            source: src,
+            strmode: false,
+            koedame: String::new(),
         };
         let mut start = 0;
         while !lexer.is_at_end() {
@@ -35,22 +34,20 @@ impl<'src> Lexer<'src> {
                     match ch {
                         '"' => {
                             lexer.strmode = !lexer.strmode;
-                            
+
                             if !lexer.strmode {
                                 let literal = std::mem::take(&mut lexer.koedame);
                                 lexer.tokens.push(Token {
                                     kind: TokenType::GT_STRING,
-                                    literal: literal,                     // 肥溜めに貯まっていた文字列が入る
-                                    span: start..lexer.current,  // 最初の `"` から 最後の `"` までの範囲
+                                    literal: literal, // 肥溜めに貯まっていた文字列が入る
+                                    span: start..lexer.current, // 最初の `"` から 最後の `"` までの範囲
                                 });
                             }
-                            
                         }
                         _ if lexer.strmode => {
                             lexer.koedame.push(ch);
                         }
                         _ if ch.is_whitespace() => {
-
                         }
                         _ if ch.is_alphabetic() => {
                             let mut word = String::new();
@@ -96,9 +93,8 @@ impl<'src> Lexer<'src> {
                                 literal: word,
                                 span: start..lexer.current,
                             });
-                            
                         }
-                        
+
                         _ if ch.is_ascii_digit() => {
                             let mut num = String::new();
                             num.push(ch);
@@ -107,7 +103,7 @@ impl<'src> Lexer<'src> {
                                     if next_ch == '.' && num.contains('.') {
                                         return Err(LexerError {
                                             message: "小数点が多すぎます。".to_string(),
-                                            span:start..lexer.current
+                                            span: start..lexer.current,
                                         });
                                     }
                                     num.push(lexer.advance().unwrap());
@@ -152,18 +148,16 @@ impl<'src> Lexer<'src> {
                         }
                         _ => {
                             return Err(LexerError {
-                                message:"文法エラー".to_string(),
-                                span: start..lexer.current
+                                message: "文法エラー".to_string(),
+                                span: start..lexer.current,
                             });
                         }
-                        
                     }
                 }
                 None => {
                     break;
                 }
             }
-
         }
         return Ok(lexer.tokens);
     }
@@ -183,5 +177,4 @@ impl<'src> Lexer<'src> {
         let ch = self.source[self.current..].chars().next()?;
         Some(ch)
     }
-
 }
