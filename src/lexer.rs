@@ -1,6 +1,5 @@
 use std::ops::Range;
-pub mod tokentype;
-pub use tokentype::TokenType;
+use crate::tokentype::TokenType;
 
 pub struct Token {
     pub kind: TokenType,
@@ -16,7 +15,6 @@ pub struct Lexer<'src> {
 }
 impl<'src> Lexer<'src> {
 
-
     pub fn lexer_main(src: &'src str) -> Vec<Token> {
         let mut lexer = Lexer {
             tokens: Vec::new(),
@@ -24,6 +22,7 @@ impl<'src> Lexer<'src> {
             source:src,
             strmode:false,
             koedame:String::new(),
+            current_indent: 0,
         };
         let mut start = 0;
         while !lexer.is_at_end() {
@@ -38,7 +37,7 @@ impl<'src> Lexer<'src> {
                                 let literal = std::mem::take(&mut lexer.koedame);
                                 lexer.tokens.push(Token {
                                     kind: TokenType::GT_STRING,
-                                    literal,                     // 肥溜めに貯まっていた文字列が入る
+                                    literal: literal,                     // 肥溜めに貯まっていた文字列が入る
                                     span: start..lexer.current,  // 最初の `"` から 最後の `"` までの範囲
                                 });
                             }
@@ -48,13 +47,7 @@ impl<'src> Lexer<'src> {
                             lexer.koedame.push(ch);
                         }
                         _ if ch.is_whitespace() => {
-                            if (ch == '\t') {
-                                lexer.tokens.push(Token {
-                                    kind: TokenType::GT_INDENT,
-                                    literal:"\t".to_string(),
-                                    span:start..lexer.current,
-                                });
-                            }
+
                         }
                         _ if ch.is_alphabetic() => {
                             let mut word = String::new();
@@ -84,6 +77,15 @@ impl<'src> Lexer<'src> {
                                 "DIV" => TokenType::GT_DIVISION,
                                 "MINUS" => TokenType::GT_MINUS,
                                 "LOAD" => TokenType::GT_LOAD,
+                                "RETURN" => TokenType::GT_RETURN,
+                                "COMMENT" => TokenType::GT_COMMENT,
+                                "EXIT" => TokenType::GT_EXIT,
+                                "OR" => TokenType::GT_OR,
+                                "AND" => TokenType::GT_AND,
+                                "OVER" => TokenType::GT_OVER,
+                                "UNDER" => TokenType::GT_UNDER,
+                                "OTHER" => TokenType::GT_OTHER,
+                                "END" => TokenType::GT_END,
                                 _ => TokenType::GT_IDENT,
                             };
                             lexer.tokens.push(Token {
@@ -93,25 +95,54 @@ impl<'src> Lexer<'src> {
                             });
                             
                         }
+                        
                         _ if ch.is_ascii_digit() => {
                             let mut num = String::new();
-                            num.push(ch); // 最初の1文字
-
+                            num.push(ch);
                             while let Some(next_ch) = lexer.peek() {
-                                if next_ch.is_ascii_digit() {
+                                if next_ch.is_ascii_digit() || next_ch == '.' {
+                                    if next_ch == '.' && num.contains('.') { break; }
                                     num.push(lexer.advance().unwrap());
                                 } else {
                                     break;
                                 }
                             }
-
-                            // 読み終わったらトークンにする
+                            if num.matches('.').count() == 1 {
+                                lexer.tokens.push(Token {
+                                    kind: TokenType::GT_FLOAT,
+                                    literal: num,
+                                    span: start..lexer.current,
+                                });
+                            } else {
+                                lexer.tokens.push(Token {
+                                    kind: TokenType::GT_INT,
+                                    literal: num,
+                                    span: start..lexer.current,
+                                });
+                            }
+                        }
+                        '.' => {
                             lexer.tokens.push(Token {
-                                kind: TokenType::GT_INT,
-                                literal: num,
-                                span: start..lexer.current,
+                                kind: TokenType::GT_PERIOD,
+                                literal: ".".to_string(),                     // 肥溜めに貯まっていた文字列が入る
+                                span: lexer.current,  // 最初の `"` から 最後の `"` までの範囲
                             });
                         }
+                        '(' => {
+                            lexer.tokens.push(Token {
+                                kind: TokenType::GT_LP,
+                                literal: "(".to_string(),                     // 肥溜めに貯まっていた文字列が入る
+                                span: lexer.current,  // 最初の `"` から 最後の `"` までの範囲
+                            });
+                        }
+                        ')' => {
+                            lexer.tokens.push(Token {
+                                kind: TokenType::GT_LP,
+                                literal: "(".to_string(),                     // 肥溜めに貯まっていた文字列が入る
+                                span: lexer.current,  // 最初の `"` から 最後の `"` までの範囲
+                            });
+                        }
+                        
                     }
                 }
                 None => {
@@ -120,6 +151,7 @@ impl<'src> Lexer<'src> {
             }
 
         }
+        return lexer.tokens;
     }
     pub fn is_at_end(&self) -> bool {
         if (self.current >= self.source.len()) {

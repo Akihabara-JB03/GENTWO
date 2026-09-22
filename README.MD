@@ -4,8 +4,6 @@
 **~~1. NIM~~**
 
 **1. C++**
-
-**2.Rust**
 ## 2. USE STATUS CODE
 | Code | Status |
 | ---- | ---- |
