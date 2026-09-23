@@ -4,7 +4,7 @@ mod tokentype;
 use lexer::Lexer;
 
 fn main() {
-    let source_code = "SET X TO 10.";
+    let source_code = "SET X TO 10 (INT).";
 
     println!("--- レキサーのテスト開始 ---");
     println!("入力ソース: {:?}", source_code);
