@@ -19,6 +19,7 @@ pub struct LexerError {
 }
 impl<'src> Lexer<'src> {
     pub fn lexer_main(src: &'src str) -> Result<Vec<Token>, LexerError> {
+        
         let mut lexer = Lexer {
             tokens: Vec::new(),
             current: 0,
@@ -86,6 +87,7 @@ impl<'src> Lexer<'src> {
                                 "UNDER" => TokenType::GT_UNDER,
                                 "OTHER" => TokenType::GT_OTHER,
                                 "END" => TokenType::GT_END,
+                                "REPEAT" => TokenType::GT_REPEAT,
                                 _ => TokenType::GT_IDENT,
                             };
                             lexer.tokens.push(Token {
@@ -96,6 +98,7 @@ impl<'src> Lexer<'src> {
                         }
 
                         _ if ch.is_ascii_digit() => {
+                            let mut float_flag = false;
                             let mut num = String::new();
                             num.push(ch);
                             while let Some(next_ch) = lexer.peek() {
@@ -106,12 +109,19 @@ impl<'src> Lexer<'src> {
                                             span: start..lexer.current,
                                         });
                                     }
+                                    if next_ch == '.' {
+                                        if lexer.peek_next().is_some_and(|ch| ch.is_ascii_digit()) {
+                                            float_flag = true;
+                                        } else {
+                                            break;
+                                        }
+                                    }
                                     num.push(lexer.advance().unwrap());
                                 } else {
                                     break;
                                 }
                             }
-                            if num.matches('.').count() == 1 {
+                            if num.matches('.').count() == 1 && float_flag == true {
                                 lexer.tokens.push(Token {
                                     kind: TokenType::GT_FLOAT,
                                     literal: num,
@@ -175,6 +185,10 @@ impl<'src> Lexer<'src> {
     }
     pub fn peek(&self) -> Option<char> {
         let ch = self.source[self.current..].chars().next()?;
+        Some(ch)
+    }
+    pub fn peek_next(&self) -> Option<char> {
+        let ch = self.source[self.current..].chars().nth(1)?;
         Some(ch)
     }
 }

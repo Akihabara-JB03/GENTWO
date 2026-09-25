@@ -1,11 +1,13 @@
 mod lexer;
 mod tokentype;
-
+mod parse;
 use lexer::Lexer;
 
 fn main() {
-    let source_code = "SET X TO 10 (INT).";
-
+    let source_code = "REPEAT 10 TIMES
+        SET X TO X PLUS 1.
+        DISPLAYS X.
+    END.";
     println!("--- レキサーのテスト開始 ---");
     println!("入力ソース: {:?}", source_code);
 

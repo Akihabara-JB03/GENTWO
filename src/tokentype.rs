@@ -35,4 +35,5 @@ pub enum TokenType {
     GT_SFY_STRING /*SPECIFY STRING*/,
     GT_OTHER,
     GT_END,
+    GT_REPEAT,
 }
