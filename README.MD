@@ -6,14 +6,9 @@
 **1. Rust**
 
 **2. C++**
-## 2. USE STATUS CODE
-| Code | Status |
-| ---- | ---- |
-| **200** | OK |
-| **201** | CREATED |
-| **403** | Forbidden |
-| **418** | I'm a Teapot |
-## 3. HISTORY
+
+**3. Type Script**
+## 2. HISTORY
 
 - 2026.09.07: GENTWO Project Started!
 - 2026.09.08: Wrote 3,406 bytes of Lexer (NIM).
@@ -22,10 +17,10 @@
 - 2026.09.10: Wrote 3,776 bytes of Lexer (NIM).
 - 2026.09.14: Wrote 4,673 bytes of Lexer .
 - 2026.09.14: Added an example folder with [`main.gt`](example/main.gt).
-## 4. VERSION
+## 3. VERSION
 **GENTWO VERSION** `BETA 0.01`
 ### new feature
 None.
-## 5. LICENSE
+## 4. LICENSE
 Copyright (c) 2026 Akihabara-JB03.
 Licensed under the MIT License. The full license text can be found in the [`LICENSE`](LICENSE) file in the root directory.
