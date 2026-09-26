@@ -21,9 +21,9 @@
 **GENTWO VERSION** `BETA 0.01`
 ### new feature
 - [x] Lexer
-- [] Parser
-- [] LSP
-- [] LLVM
+- [ ] Parser
+- [ ] LSP
+- [ ] LLVM
 ## 4. LICENSE
 Copyright (c) 2026 Akihabara-JB03.
 Licensed under the MIT License. The full license text can be found in the [`LICENSE`](LICENSE) file in the root directory.
