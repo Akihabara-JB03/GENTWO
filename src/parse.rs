@@ -22,6 +22,40 @@ pub enum ParserError {
         message: String,
     },
 }
+pub enum Expr {
+    Integer(i64),
+    Float(f64),
+    String(String),
+    Identifier(String),
+}
+pub enum Statement {
+    Set {
+        name: String,
+        value: Expr,
+    },
+    Displays {
+        value: Expr,
+    },
+    Exit,
+    End,
+    
+}
+pub enum WarningKind {
+    ImplicitConversion,
+    UnusedVariable,
+}
+
+pub struct Warning {
+    pub kind: WarningKind,
+    pub message: String,
+}
+pub struct Ast {
+    Statements: Vec<Statement>,
+}
+pub struct PR { /*Parser Result*/
+    pub ast: Ast,
+    pub warnings: Vec<Warning>,
+}
 
 impl Parser {
     fn peek(&self) -> Option<&Token> {
@@ -61,7 +95,7 @@ impl Parser {
             })
         }
     }
-    fn parser_main() {
-    
+    fn parser_main(tokens: &[Token]) -> Result<PR,ParserError> {
+        
     }
 }
