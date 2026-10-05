@@ -44,6 +44,7 @@ pub enum Expr {
         operator: Operator,
         right: Box<Expr>,
     },
+    Equal,
 }
 pub enum Statement {
     Set {
@@ -156,49 +157,103 @@ impl<'a> Parser<'a> {
         })
     }
     fn expression(&mut self) -> Result<Expr,ParserError> {
-        
+        self.factor()
+    }
+    fn parse_equal(&mut self) -> Result<Expr, ParserError> {
+        self.consume(TokenType::GT_EQ, "EQUALが必要です。")?;
+        Ok(Expr::Equal)
+    }
+    fn eof_check(&self) -> Result<&Token, ParserError> {
+        match self.peek() {
+            Some(token) => Ok(token),
+            None => Err(ParserError::UnexpectedEOF {
+                message: "式を期待しました。".to_string(),
+            }),
+        }
+    }
+    fn factor(&mut self) -> Result<Expr, ParserError> {
+        let mut expr = self.term()?;
+        while self.peek().map(|token| token.kind) == Some(TokenType::GT_PLUS) || self.peek().map(|token| token.kind) == Some(TokenType::GT_MINUS) {
+            match self.peek().map(|token| token.kind) {
+                Some(TokenType::GT_PLUS) => {
+                    self.advance();
+                    let right = self.term()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        operator: Operator::Add,
+                        right: Box::new(right),
+                    };
+                }
+                Some(TokenType::GT_MINUS) => {
+                    self.advance();
+                    let right = self.term()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        operator: Operator::Minus,
+                        right: Box::new(right),
+                    };
+                }
+                _ => {}
+            }
+        }
+        Ok(expr)
+    }
+    fn term(&mut self) -> Result<Expr, ParserError> {
+        let mut expr = self.unary()?;
+        while self.peek().map(|token| token.kind) == Some(TokenType::GT_TIMES) || self.peek().map(|token| token.kind) == Some(TokenType::GT_DIVISION) {
+            match self.peek().map(|token| token.kind) {
+                Some(TokenType::GT_TIMES) => {
+                    self.advance();
+                    let right = self.unary()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        operator: Operator::Times,
+                        right: Box::new(right),
+                    };
+                }
+                Some(TokenType::GT_DIVISION) => {
+                    self.advance();
+                    let right = self.unary()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        operator: Operator::Div,
+                        right: Box::new(right),
+                    };
+                }
+                _ => {}
+            }
+        }
+        Ok(expr)
     }
     fn unary(&mut self) -> Result<Expr, ParserError> {
-        let token = match self.peek() {
-            Some(token) => token,
-            None => {
-                return Err(ParserError::UnexpectedEOF {
-                    message: "式を期待しました。".to_string(),
-                });
-            }
-        };
-        match token.kind {
-            GT_MINUS => {
-                let token = self.advance();
+        match self.peek().map(|token| token.kind) {
+            Some(TokenType::GT_MINUS) => {
+                self.advance();
                 let right = self.unary()?;
                 Ok(Expr::Unary {
                     operator:Operator::Minus,
-                    right: right,
+                    right: Box::new(right),
                 })
             }
-            GT_NOT => {
-                let token = self.advance();
-                let right = self.unary()?;
+            Some(TokenType::GT_NOT) => {
+                self.advance();
+                let right = self.parse_equal()?;
                 Ok(Expr::Unary {
                     operator: Operator::Not,
-                    right: right,
+                    right: Box::new(right),
                 })
+            }
+            _ => {
+                self.primary()
             }
         }
     }
     fn primary(&mut self) -> Result<Expr, ParserError> {
-        let token = match self.peek() {
-            Some(token) => token,
-            None => {
-                return Err(ParserError::UnexpectedEOF {
-                    message: "式を期待しました。".to_string(),
-                });
-            }
-        };
+        let token = self.eof_check()?;
         match token.kind {
             TokenType::GT_INT => {
                 // 整数
-                let token = self.advance()?;
+                let token = self.advance();
 
                 let value = token.literal.parse::<i64>()
                     .map_err(|_| ParserError::Int64ExchangeError {
@@ -210,7 +265,7 @@ impl<'a> Parser<'a> {
 
             TokenType::GT_FLOAT => {
                 // 浮動小数点数
-                let token = self.advance()?;
+                let token = self.advance();
                 let val = token.literal.parse::<f64>()
                     .map_err(|_| ParserError::Float64ExchangeError {
                         literal: token.literal.clone(),
@@ -220,18 +275,18 @@ impl<'a> Parser<'a> {
             }
 
             TokenType::GT_STRING => {
-                let token = self.advance()?;
+                let token = self.advance();
                 Ok(Expr::String(token.literal))
             }
 
             TokenType::GT_IDENT => {
-                let token = self.advance()?;
+                let token = self.advance();
                 Ok(Expr::Identifier(token.literal))
             }
 
             TokenType::GT_LP => {
                 self.advance();
-                let expr = self.expression()?;
+                let expr = self.expression();
                 self.consume(TokenType::GT_RP)?;
                 Ok(expr)
             }
