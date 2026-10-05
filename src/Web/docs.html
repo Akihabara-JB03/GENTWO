@@ -1,25 +1,33 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" href="style.css">
-        <meta charset="utf-8">
-        <title>GENTWO | Docs</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    </head>
-    <body>
-        <header>
-            <h2><a href="index.html">GENTWO | ease of writing</a></h2>
-            <nav>
-                <h3><a href="#">Docs</a></h3>
-                <h3><a href="https://github.com/Akihabara-JB03/GENTWO">GitHub</a></h3>
-            </nav>
-        </header>
+
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+    <title>GENTWO | Docs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <header>
+        <h2><a href="index.html">GENTWO | ease of writing</a></h2>
+        <nav>
+            <h3><a href="#">Docs</a></h3>
+            <h3><a href="https://github.com/Akihabara-JB03/GENTWO">GitHub</a></h3>
+        </nav>
+    </header>
+    <main>
         <section id="Contents">
             <h4>Contents</h4>
             <a href="#start">はじめに</a>
-            <a></a>
-            <a></a>
+            <a href="#philosophy">本言語の思想</a>
+            <details>
+                <summary><a href="#syntax">文法</a></summary>
+                <a href="#text">テキスト表示</a>
+                <a href="#var">変数</a>
+            </details>
+
         </section>
         <section id="start">
             <h2>はじめに</h2>
@@ -27,13 +35,51 @@
                 本言語のチュートリアルへようこそ。どうぞ、足をお楽にしてお聞きください。
                 突然ですが、この言語が目指しているものをご存知でしょうか。
                 ご存知でない方のために簡単にご説明しますと、GENTWOは「英語が読めれば書ける言語」を目指して開発されています。
+                ですが、この言語の作者である私は、皆さんにこのプログラミング言語にずっと留まってもらおうとは思っていません。それは、この言語の目的ではないからです。
+                GENTWOは、まだどのプログラミング言語にも触れたことがない人に、プログラミングの考え方をわかりやすく学んでもらい、そこから別の言語へ進んでいくための「踏み台」になることを原則としています。
+                そのため、GENTWOに留まってもらうことを目的とした機能や仕組みを作ることは、この原則に反するものだと考えています。
+                とはいえ、GENTWOを使っている間は、少しの間よろしくお願いします。
 
-                ですが、この言語にずっと留めさせるわけでもありませんし、それは目的ではありません。
-                この言語はどの言語も触ったことがない人に対して、プログラミングの考え方をわかりやすく書け、別の言語をいじれる踏み台になるのが目的であり、
             </p>
         </section>
-        <section>
+        <section id="philosophy">
+            <h2>本言語の思想</h2>
+            <h3>1. 人にとって書きやすく。</h3>
+            <p>できるだけ多くの人にとって書きやすくする原則。</p>
+            <h3>2. プログラミングの入り口となる。</h3>
+            <p>初心者にとっても、書きやすくし、プログラミングの考え方を育てる。</p>
+            <h3>3. この言語は踏み台である</h3>
+            <p><a href="#start">前述</a>の通り。</p>
+            <h3>4. 読めばだいたい意味が分かる</h3>
+            <p>以下は構文の例。</p>
+            <pre><code>
+SET X TO 10.
+DISPLAYS X.
+            </code></pre>
+        </section>
+        <section id="syntax">
+            <h2>文法</h2>
+            <section id="text">
+                <h3>1. テキスト表示</h3>
+                <code>DISPLAYS "HELLO, WORLD!!".</code>
+                <p>直訳で、「"HELLo, WORLD!!"と表示する。」という意味で、<a href="#var">変数</a>Xを表示したい場合は、</p>
+                <code>DISPLAYS X.</code>
+                <p>となる。</p>
+            </section>
+            <section id="var">
+                <h3>2. 変数の設定</h3>
+                <code>SET X TO 10.</code>
+                <p>直訳しなくともわかりやすいであろう。また、型を明示するやり方として、</p>
+                <code>SET X TO 10 (INT).</code>
+                <p>などのコードや、</p><code>SET X TO 10 (FLOAT).</code>
+                <p>※整数から浮動小数点数への変換によりデータが失われる可能性はないので、暗黙的に変換しますが警告が出ます。</p>
+            </section>
 
         </section>
-    </body>
+    </main>
+    <footer>
+        <p>©Akihabara-JB03 2026</p>
+    </footer>
+</body>
+
 </html>

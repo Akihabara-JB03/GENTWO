@@ -7,13 +7,13 @@ pub struct Token {
     pub span: Range<usize>,
 }
 
-pub struct Parser {
-    tokens: Vec<Token>,
+pub struct Parser<'a> {
+    tokens: &'a [Token],
     current: usize,
 }
 pub enum ParserError {
     UnexpectedToken {
-        expected: TokenType,
+        expected: Vec<TokenType>,
         found: TokenType,
         span: Range<usize>,
         message: String,
@@ -21,12 +21,29 @@ pub enum ParserError {
     UnexpectedEOF {
         message: String,
     },
+    Int64ExchangeError {
+        literal: String,
+        span: Range<usize>,
+    },
+    Float64ExchangeError {
+        literal: String,
+        span: Range<usize>,
+    },
 }
 pub enum Expr {
     Integer(i64),
     Float(f64),
     String(String),
     Identifier(String),
+    Unary {
+        operator:Operator,
+        right: Box<Expr>,
+    },
+    Binary {
+        left: Box<Expr>,
+        operator: Operator,
+        right: Box<Expr>,
+    },
 }
 pub enum Statement {
     Set {
@@ -38,7 +55,18 @@ pub enum Statement {
     },
     Exit,
     End,
-    
+}
+pub enum Operator {
+    Add,
+    Div,
+    Times,
+    Minus,
+    And,
+    Or,
+    Equal,
+    Not,
+    Under,
+    Over,
 }
 pub enum WarningKind {
     ImplicitConversion,
@@ -57,7 +85,7 @@ pub struct PR { /*Parser Result*/
     pub warnings: Vec<Warning>,
 }
 
-impl Parser {
+impl<'a> Parser<'a> {
     fn peek(&self) -> Option<&Token> {
         self.tokens.get(self.current)
     }
@@ -83,7 +111,7 @@ impl Parser {
                 Ok(token)
             } else {
                 Err(ParserError::UnexpectedToken {
-                    expected: tokentype,
+                    expected: vec![tokentype],
                     found: token.kind,
                     span: token.span.clone(),
                     message: message.to_string(),
@@ -96,6 +124,133 @@ impl Parser {
         }
     }
     fn parser_main(tokens: &[Token]) -> Result<PR,ParserError> {
+        let mut parser = Parser {
+            tokens,
+            current: 0,
+        };
+        parser.parse()
+
+    }
+    fn parse(&mut self) -> Result<PR,ParserError> {
+        let mut statements = Vec::new();
+        let mut warnings = Vec::new();
+        while !self.is_at_end() {
+
+        }
+    }
+    fn statement(&mut self) -> Result<Statement, ParserError> {
+        // 次のTokenを見て、どのStatementなのか判断
+        match self.peek() {
+            TokenType::GT_SET => self.parser_set()
+        }
+    }
+    fn parse_set(&mut self) -> Result<Statement, ParserError> {
+        self.consume(TokenType::GT_SET)?;
+        let name = self.consume(TokenType::GT_IDENT)?;
+        self.consume(TokenType::GT_TO)?;
+        let val = self.consume(TokenType::GT_INT)?;
+        self.consume(TokenType::GT_PERIOD)?;
+        Ok(Statement {
+            name:name.literal,
+            val.literal,
+        })
+    }
+    fn expression(&mut self) -> Result<Expr,ParserError> {
         
+    }
+    fn unary(&mut self) -> Result<Expr, ParserError> {
+        let token = match self.peek() {
+            Some(token) => token,
+            None => {
+                return Err(ParserError::UnexpectedEOF {
+                    message: "式を期待しました。".to_string(),
+                });
+            }
+        };
+        match token.kind {
+            GT_MINUS => {
+                let token = self.advance();
+                let right = self.unary()?;
+                Ok(Expr::Unary {
+                    operator:Operator::Minus,
+                    right: right,
+                })
+            }
+            GT_NOT => {
+                let token = self.advance();
+                let right = self.unary()?;
+                Ok(Expr::Unary {
+                    operator: Operator::Not,
+                    right: right,
+                })
+            }
+        }
+    }
+    fn primary(&mut self) -> Result<Expr, ParserError> {
+        let token = match self.peek() {
+            Some(token) => token,
+            None => {
+                return Err(ParserError::UnexpectedEOF {
+                    message: "式を期待しました。".to_string(),
+                });
+            }
+        };
+        match token.kind {
+            TokenType::GT_INT => {
+                // 整数
+                let token = self.advance()?;
+
+                let value = token.literal.parse::<i64>()
+                    .map_err(|_| ParserError::Int64ExchangeError {
+                        literal: token.literal.clone(),
+                        span: token.span.clone(),
+                    })?;
+                Ok(Expr::Integer(value))
+            }
+
+            TokenType::GT_FLOAT => {
+                // 浮動小数点数
+                let token = self.advance()?;
+                let val = token.literal.parse::<f64>()
+                    .map_err(|_| ParserError::Float64ExchangeError {
+                        literal: token.literal.clone(),
+                        span: token.span.clone(),
+                    })?;
+                Ok(Expr::Float(val))
+            }
+
+            TokenType::GT_STRING => {
+                let token = self.advance()?;
+                Ok(Expr::String(token.literal))
+            }
+
+            TokenType::GT_IDENT => {
+                let token = self.advance()?;
+                Ok(Expr::Identifier(token.literal))
+            }
+
+            TokenType::GT_LP => {
+                self.advance();
+                let expr = self.expression()?;
+                self.consume(TokenType::GT_RP)?;
+                Ok(expr)
+            }
+
+            _ => {
+                // UnexpectedToken
+                Err(ParserError::UnexpectedToken {
+                    expected: vec![
+                    TokenType::GT_INT,
+                    TokenType::GT_FLOAT,
+                    TokenType::GT_STRING,
+                    TokenType::GT_IDENT,
+                    TokenType::GT_LP
+                    ],
+                    found: token.kind,
+                    span: token.span.clone(),
+                    message: "式として解釈できないTokenです。".to_string(),
+                })
+            }
+        }
     }
 }

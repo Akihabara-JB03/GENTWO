@@ -36,4 +36,7 @@ pub enum TokenType {
     GT_OTHER,
     GT_END,
     GT_REPEAT,
+    GT_CENTWO,
+    GT_PENTWO,
+    GT_WHILE,
 }

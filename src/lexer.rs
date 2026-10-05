@@ -88,6 +88,9 @@ impl<'src> Lexer<'src> {
                                 "OTHER" => TokenType::GT_OTHER,
                                 "END" => TokenType::GT_END,
                                 "REPEAT" => TokenType::GT_REPEAT,
+                                "CENTWO" => TokenType::GT_CENTWO,
+                                "PENTWO" => TokenType::GT_PENTWO,
+                                "WHILE" => TokenType::GT_WHILE,
                                 _ => TokenType::GT_IDENT,
                             };
                             lexer.tokens.push(Token {
@@ -165,6 +168,12 @@ impl<'src> Lexer<'src> {
                     }
                 }
                 None => {
+                    if lexer.strmode {
+                        return Err(LexerError {
+                            message: "文字列が終了していません。".to_string(),
+                            span: start..lexer.current,
+                        });
+                    }
                     break;
                 }
             }
