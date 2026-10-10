@@ -146,7 +146,7 @@ impl<'a> Parser<'a> {
         }
     }
     fn parse_set(&mut self) -> Result<Statement, ParserError> {
-        self.consume(TokenType::GT_SET)?;
+        self.consume(TokenType::GT_SET, "")?;
         let name = self.consume(TokenType::GT_IDENT)?;
         self.consume(TokenType::GT_TO)?;
         let val = self.consume(TokenType::GT_INT)?;
@@ -253,7 +253,7 @@ impl<'a> Parser<'a> {
         match token.kind {
             TokenType::GT_INT => {
                 // 整数
-                let token = self.advance();
+                let token = self.advance().unwrap();
 
                 let value = token.literal.parse::<i64>()
                     .map_err(|_| ParserError::Int64ExchangeError {
@@ -265,7 +265,7 @@ impl<'a> Parser<'a> {
 
             TokenType::GT_FLOAT => {
                 // 浮動小数点数
-                let token = self.advance();
+                let token = self.advance().unwrap();
                 let val = token.literal.parse::<f64>()
                     .map_err(|_| ParserError::Float64ExchangeError {
                         literal: token.literal.clone(),
@@ -275,18 +275,18 @@ impl<'a> Parser<'a> {
             }
 
             TokenType::GT_STRING => {
-                let token = self.advance();
+                let token = self.advance().unwrap();
                 Ok(Expr::String(token.literal))
             }
 
             TokenType::GT_IDENT => {
-                let token = self.advance();
+                let token = self.advance().unwrap();
                 Ok(Expr::Identifier(token.literal))
             }
 
             TokenType::GT_LP => {
                 self.advance();
-                let expr = self.expression();
+                let expr = self.expression()?;
                 self.consume(TokenType::GT_RP)?;
                 Ok(expr)
             }

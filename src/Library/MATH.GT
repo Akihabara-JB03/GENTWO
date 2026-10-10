@@ -1,3 +1,13 @@
+PENTWO TO
+#                                                                            _         _
+# ========================= #  ___        __        ___        ___________  | |       | |
+#                           # |   \      /  |      /   \      |____   ____| | |       | |
+#          GENTWO           # | |\ \    / / |     / / \ \          | |      | |_______| |
+#      L i b r a r y        # | | \ \  / /| |    / /___\ \         | |      |  _______  |
+#                           # | |  \ \/ / | |   / _______ \        | |      | |       | |
+# ========================= # | |   \__/  | |  / /       \ \       | |      | |       | |
+#                             |_|         |_| /_/         \_\      |_|      |_|       |_|
+END.
 DEFINE FUNCTION INTEGRAL(SET a TO FLOAT,SET b TO FLOAT,SET c TO FLOAT) TO FLOAT
     COMMENT "INTEGRAL LIBRARY START".
     CENTWO TO
