@@ -32,6 +32,10 @@
 - [ ] Parser
 - [ ] LSP
 - [ ] LLVM
-## 4. LICENSE
-Copyright (c) 2026 Akihabara-JB03.
-Licensed under the MIT License. The full license text can be found in the [`LICENSE`](LICENSE) file in the root directory.
+## License
+
+GENTWO contains files distributed under different licenses. See [`License-Applicable.md`](License-Applicable.md) for details on the applicable license for each file.
+
+- **Source code and other covered files:** MIT License (`LICENSE`)
+- **Web documentation (`src/Web/docs.html`):** CC BY 4.0 (`LICENSE.WEBDOCS`)
+- **Assets covered by `LICENSE.assets`:** Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)
