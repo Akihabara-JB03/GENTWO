@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "WxJSQlS4fpA=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Owner\\Desktop\\GENTWO\\src\\IDE\\GENTWO.IDE\\GENTWO.IDE.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Owner\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.5\\microsoft.aspnetcore.app.internal.assets.10.0.5.nupkg.sha512"
+  ],
+  "logs": []
+}

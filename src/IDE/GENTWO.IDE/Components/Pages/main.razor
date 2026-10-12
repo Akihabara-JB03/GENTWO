@@ -1,0 +1,20 @@
+@page "/editor"
+@rendermode InteractiveServer
+
+<PageTitle>GENTWO IDE - Editor</PageTitle>
+<!--
+ _________    _____      _______
+|___   ___|  |  __ \    |  _____|
+    | |      | |  \ \   | |_____
+    | |      | |   \ \  |  _____|
+    | |      | |   / /  | |
+ ___| |___   | |__/ /   | |_____
+|_________|  |_____/    |_______|
+-->
+<textarea @bind="code",row="60",col="80"></textarea>
+<button>
+    
+</button>
+@code {
+    private string code = "";
+}

@@ -1,3 +1,13 @@
+/*
+    ____________________________                                                            
+   |                            |      ________________________________                     
+   | File Created: Sep 14, 2026 |_____|      GENTWO     |_____________/\                    
+   |       Akihabara-JB03       |     |_________________|     \      /  \         [ Parser ]
+   |____________________________| ____________________________/\    /    \            /     
+                | |             | Last Modified: Oct 12, 2026 | \  /      \          /      
+                | |____________/| Last Commit: Oct 10, 2026   |  \/        \________/       
+                |______________/|_____________________________|                             
+*/
 use crate::tokentype::TokenType;
 use std::ops::Range;
 #[derive(Clone)]
@@ -35,6 +45,7 @@ pub enum Expr {
     Float(f64),
     String(String),
     Identifier(String),
+    Null,
     Unary {
         operator:Operator,
         right: Box<Expr>,
@@ -44,7 +55,6 @@ pub enum Expr {
         operator: Operator,
         right: Box<Expr>,
     },
-    Equal,
 }
 pub enum Statement {
     Set {
@@ -56,6 +66,12 @@ pub enum Statement {
     },
     Exit,
     End,
+    Compare {
+        value:Expr,
+    },
+    Load {
+        module:Token,
+    },
 }
 pub enum Operator {
     Add,
@@ -64,10 +80,11 @@ pub enum Operator {
     Minus,
     And,
     Or,
-    Equal,
-    Not,
+    NotEqual,
     Under,
     Over,
+    UnderOrEqual,
+    OverOrEqual,
 }
 pub enum WarningKind {
     ImplicitConversion,
@@ -132,7 +149,7 @@ impl<'a> Parser<'a> {
         parser.parse()
 
     }
-    fn parse(&mut self) -> Result<PR,ParserError> {
+    pub fn parse(&mut self) -> Result<PR,ParserError> {
         let mut statements = Vec::new();
         let mut warnings = Vec::new();
         while !self.is_at_end() {
@@ -140,28 +157,123 @@ impl<'a> Parser<'a> {
         }
     }
     fn statement(&mut self) -> Result<Statement, ParserError> {
-        // 次のTokenを見て、どのStatementなのか判断
-        match self.peek() {
-            TokenType::GT_SET => self.parser_set()
+        let token = self.eof_check()?;
+        match token.kind {
+            TokenType::GT_SET => self.parse_set(),
+            TokenType::GT_COMPARE => self.spc(),
+            TokenType::GT_DISPLAYS => parse_displays(),
+            TokenType::GT_LOAD => parse_load(),
         }
     }
+    fn parse_displays(&mut self) -> Result<Statement,ParserError> {
+        self.consume(TokenType::GT_DISPLAYS, "エラー　PRINTで文字を表示するって！！印刷ぅ！？心底驚きだわｗｗｗ")?;
+        let value = self.expression()?;
+        self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
+        Ok(Statement::Displays {
+            value
+        })
+    }
+    fn parse_load(&mut self) -> Result<Statement, ParserError> {
+        self.consume(TokenType::GT_LOAD, "LOADじゃなくてLoadなんだよね。ごめん。大文字小文字で違うとエラーなんだ。")?;
+        let module = self.consume(
+            TokenType::GT_IDENT,
+            "エラー　読み込むモジュール名を指定してくれ！！"
+        )?;
+        self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
+        Ok(Statement::Load {
+            module
+        })
+    }
     fn parse_set(&mut self) -> Result<Statement, ParserError> {
-        self.consume(TokenType::GT_SET, "")?;
-        let name = self.consume(TokenType::GT_IDENT)?;
-        self.consume(TokenType::GT_TO)?;
-        let val = self.consume(TokenType::GT_INT)?;
-        self.consume(TokenType::GT_PERIOD)?;
-        Ok(Statement {
+        self.consume(TokenType::GT_SET, "エラー　変数の設定は、SET文に通ずる")?;
+        let name = self.consume(TokenType::GT_IDENT, "エラー　変数名を忘れるな！！何に何を入れるんだよ！！")?;
+        self.consume(TokenType::GT_TO, "エラー　英語の読みやすさのためのTOを消すのは腹切りされてもおかしくない。")?;
+        let val = self.expression()?;
+        self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
+        Ok(Statement::Set {
             name:name.literal,
-            val.literal,
+            value:val,
+        })
+    }
+    fn parse_compare(&mut self) -> Result<Expr, ParserError> {
+        self.consume(TokenType::GT_COMPARE, "エラー　比較の始まりはIfじゃない！！！それはライバル！！")?;
+        let src = self.expression()?;
+        self.consume(TokenType::GT_TO, "エラー　英語の読みやすさのためのTOを消すのは腹切りされてもおかしくない。")?;
+        let dst = self.expression()?;
+        self.consume(TokenType::GT_LP, "エラー　演算子はカッコで囲む必要があります。")?;
+        let operator = self.parse_equal()?;
+        self.consume(TokenType::GT_RP, "エラー　演算子はカッコで囲む必要があります。")?;
+        Ok(Expr::Binary {
+            left: Box::new(src),
+            operator,
+            right: Box::new(dst),
+        })
+    }
+    fn spc(&mut self) /*Statement Parse Compare*/ -> Result<Statement, ParserError> {
+        let value = self.parse_compare()?;
+        self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
+        Ok(Statement::Compare {
+            value
         })
     }
     fn expression(&mut self) -> Result<Expr,ParserError> {
-        self.factor()
+        self.or()
     }
-    fn parse_equal(&mut self) -> Result<Expr, ParserError> {
+    fn or(&mut self) -> Result<Expr, ParserError> {
+        let mut expr = self.and()?;
+
+        while self.peek().map(|token| token.kind) == Some(TokenType::GT_OR) {
+            self.advance();
+            let right = self.and()?;
+
+            expr = Expr::Binary {
+                left: Box::new(expr),
+                operator: Operator::Or,
+                right: Box::new(right),
+            };
+        }
+
+        Ok(expr)
+    }
+    fn and(&mut self) -> Result<Expr, ParserError> {
+        let mut expr = self.term()?;
+        while self.peek().map(|token| token.kind) == Some(TokenType::GT_AND) {
+            self.advance();
+            let right = self.term()?;
+            expr = Expr::Binary {
+                left: Box::new(expr),
+                operator: Operator::And,
+                right: Box::new(right),
+            };
+        }
+        Ok(expr)
+    }
+    fn parse_equal(&mut self) -> Result<Operator, ParserError> {
+        if self.peek().map(|token| token.kind) == Some(TokenType::GT_NOT) {
+            self.advance();
+            self.consume(TokenType::GT_EQ, "EQUALが必要です。")?;
+            return Ok(Operator::NotEqual);
+        }
+        if self.peek().map(|token| token.kind) == Some(TokenType::GT_UNDER) {
+            self.advance();
+            if self.peek().map(|token| token.kind) == Some(TokenType::GT_OR) {
+                self.advance();
+                self.consume(TokenType::GT_EQ, "EQUALが必要です。")?;
+                return Ok(Operator::UnderOrEqual)
+            }
+            return Ok(Operator::Under);
+        }
+        if self.peek().map(|token| token.kind) == Some(TokenType::GT_OVER) {
+            self.advance();
+            if self.peek().map(|token| token.kind) == Some(TokenType::GT_OR) {
+                self.advance();
+                self.consume(TokenType::GT_EQ, "EQUALが必要です。")?;
+                return Ok(Operator::OverOrEqual)
+            }
+            return Ok(Operator::Over);
+        }
         self.consume(TokenType::GT_EQ, "EQUALが必要です。")?;
-        Ok(Expr::Equal)
+        Ok(Operator::Equal)
     }
     fn eof_check(&self) -> Result<&Token, ParserError> {
         match self.peek() {
@@ -171,13 +283,13 @@ impl<'a> Parser<'a> {
             }),
         }
     }
-    fn factor(&mut self) -> Result<Expr, ParserError> {
-        let mut expr = self.term()?;
+    fn term(&mut self) -> Result<Expr, ParserError> {
+        let mut expr = self.factor()?;
         while self.peek().map(|token| token.kind) == Some(TokenType::GT_PLUS) || self.peek().map(|token| token.kind) == Some(TokenType::GT_MINUS) {
             match self.peek().map(|token| token.kind) {
                 Some(TokenType::GT_PLUS) => {
                     self.advance();
-                    let right = self.term()?;
+                    let right = self.factor()?;
                     expr = Expr::Binary {
                         left: Box::new(expr),
                         operator: Operator::Add,
@@ -186,7 +298,7 @@ impl<'a> Parser<'a> {
                 }
                 Some(TokenType::GT_MINUS) => {
                     self.advance();
-                    let right = self.term()?;
+                    let right = self.factor()?;
                     expr = Expr::Binary {
                         left: Box::new(expr),
                         operator: Operator::Minus,
@@ -198,7 +310,7 @@ impl<'a> Parser<'a> {
         }
         Ok(expr)
     }
-    fn term(&mut self) -> Result<Expr, ParserError> {
+    fn factor(&mut self) -> Result<Expr, ParserError> {
         let mut expr = self.unary()?;
         while self.peek().map(|token| token.kind) == Some(TokenType::GT_TIMES) || self.peek().map(|token| token.kind) == Some(TokenType::GT_DIVISION) {
             match self.peek().map(|token| token.kind) {
@@ -235,14 +347,6 @@ impl<'a> Parser<'a> {
                     right: Box::new(right),
                 })
             }
-            Some(TokenType::GT_NOT) => {
-                self.advance();
-                let right = self.parse_equal()?;
-                Ok(Expr::Unary {
-                    operator: Operator::Not,
-                    right: Box::new(right),
-                })
-            }
             _ => {
                 self.primary()
             }
@@ -276,19 +380,22 @@ impl<'a> Parser<'a> {
 
             TokenType::GT_STRING => {
                 let token = self.advance().unwrap();
-                Ok(Expr::String(token.literal))
+                Ok(Expr::String(token.literal.clone()))
             }
 
             TokenType::GT_IDENT => {
                 let token = self.advance().unwrap();
-                Ok(Expr::Identifier(token.literal))
+                Ok(Expr::Identifier(token.literal.clone()))
             }
 
             TokenType::GT_LP => {
                 self.advance();
                 let expr = self.expression()?;
-                self.consume(TokenType::GT_RP)?;
+                self.consume(TokenType::GT_RP,  "閉じ括弧 ')' が必要です。")?;
                 Ok(expr)
+            }
+            TokenType::GT_NUL => {
+                Ok(Expr::Null)
             }
 
             _ => {
