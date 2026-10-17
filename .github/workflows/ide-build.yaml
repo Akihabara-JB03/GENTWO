@@ -52,4 +52,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gentwo-ide-windows
-          path: src/IDE/build/windows/x64/release/bundle/
+          path: src/IDE/build/windows/runner/Release
