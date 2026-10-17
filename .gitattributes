@@ -1,3 +1,4 @@
 *.sh text eol=lf
 *.gtw linguist-language=BASIC
 *.gt linguist-language=BASIC
+temp/** linguist-vendored
