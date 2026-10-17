@@ -1,0 +1,58 @@
+
+name: GENTWO IDE Bootstrap
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Enable desktop platforms
+        run: flutter config --enable-linux-desktop --enable-windows-desktop
+
+      - name: Generate Flutter project
+        run: |
+          flutter create \
+            --platforms=windows,linux \
+            --project-name gentwo_ide \
+            "$RUNNER_TEMP/gentwo_ide"
+
+      - name: Preserve existing Dart source
+        shell: bash
+        run: |
+          SOURCE="src/IDE/lib/main.dart"
+          TARGET="$RUNNER_TEMP/gentwo_ide/lib/main.dart"
+
+          if [ -s "$SOURCE" ]; then
+            cp "$SOURCE" "$TARGET"
+            echo "Existing main.dart copied."
+          else
+            echo "Existing main.dart is empty or missing."
+            echo "Keeping the generated Flutter starter."
+          fi
+
+      - name: Resolve dependencies
+        working-directory: ${{ runner.temp }}/gentwo_ide
+        run: flutter pub get
+
+      - name: Upload generated project
+        uses: actions/upload-artifact@v4
+        with:
+          name: gentwo-ide-bootstrap
+          path: ${{ runner.temp }}/gentwo_ide/
+          if-no-files-found: error
+          retention-days: 7

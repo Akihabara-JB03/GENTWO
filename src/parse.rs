@@ -163,6 +163,7 @@ impl<'a> Parser<'a> {
             TokenType::GT_COMPARE => self.spc(),
             TokenType::GT_DISPLAYS => parse_displays(),
             TokenType::GT_LOAD => parse_load(),
+            TokenType::GT_EXIT => 
         }
     }
     fn parse_displays(&mut self) -> Result<Statement,ParserError> {
@@ -209,6 +210,14 @@ impl<'a> Parser<'a> {
             right: Box::new(dst),
         })
     }
+    fn parse_exit(&mut self) -> Result<Statement, ParserError> {
+        self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
+        Ok(Statement::Exit)
+    } 
+    fn parse_end(&mut self) -> Result<Statement, ParserError> {
+        self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
+        Ok(Statement::End)
+    } 
     fn spc(&mut self) /*Statement Parse Compare*/ -> Result<Statement, ParserError> {
         let value = self.parse_compare()?;
         self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
