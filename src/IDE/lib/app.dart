@@ -9,11 +9,11 @@ class GENTWOIDE extends StatelessWidget {
             appBar: AppBar(
                 title: const Text("GENTWO IDE"),
             ),
-            body: const column(
+            body: const Column(
                 children: [
                     Text("GENTWO IDE"),
                 ],
             ),
-        )
+        );
     }
 }
