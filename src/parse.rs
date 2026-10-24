@@ -39,6 +39,21 @@ pub enum ParserError {
         literal: String,
         span: Range<usize>,
     },
+    NullExchangeError {
+        literal: String,
+        span: Range<usize>,
+    },
+    SfyAdmissibilityError {
+        expected: Vec<TokenType>,
+        found: TokenType,
+        span: Range<usize>,
+        message: String,
+    }
+}
+enum TypeSpecifier {
+    Int,
+    Float,
+    String,
 }
 pub enum Expr {
     Integer(i64),
@@ -96,6 +111,64 @@ pub struct PR {
 }
 
 impl<'a> Parser<'a> {
+    fn PTS(&mut self) /*Parser Type Specifier*/ -> Result<Option<TypeSpecifier>,ParserError> {
+        match self.peek().map(|token| token.kind) {
+            Some(TokenType::GT_LP) => {
+                self.advance();
+                let sfy = self.PTS();
+                if (self.peek().map(|token| token.kind) == Some(TokenType::GT_RP)) {
+                    self.advance();
+                    Ok(sfy)
+                } else {
+                    eof_check()?;
+                    let token = self.peek().unwrap();
+                    Err(ParserError::SfyAdmissibilityError {
+                        expected: vec![
+                            TokenType::GT_RP,
+                        ],
+                        found: token.kind,
+                        span: token.span.clone(),
+                        message: "`(`があるため`)`で対応させる必要があります。".to_string(),
+                    })
+                }
+            }
+            Some(TokenType::GT_SFY_INT) => {
+                self.advance();
+                Ok(Some(TypeSpecifier::Int))
+            }
+            Some(TokenType::GT_SFY_FLOAT) => {
+                self.advance();
+                Ok(Some(TypeSpecifier::Float))
+            }
+            Some(TokenType::GT_SFY_STRING) => {
+                self.advance();
+                Ok(Some(TypeSpecifier::String))
+            }
+            Some(TokenType::GT_NUL) => {
+                let token = self.advance();
+
+                Err(ParserError::NullExchangeError {
+                    literal: token.literal.clone(),
+                    span: token.span.clone(),
+                })
+            }
+            _ => {
+                self.eof_check()?;
+                let token = self.peek().unwrap();
+
+                Err(ParserError::SfyAdmissibilityError {
+                    expected: vec![
+                        TokenType::GT_SFY_INT,
+                        TokenType::GT_SFY_FLOAT,
+                        TokenType::GT_SFY_STRING,
+                    ],
+                    found: token.kind,
+                    span: token.span.clone(),
+                    message: "INT型、FLOAT型、STRING型のどれかを型に入れてください。例：(STRING)".to_string(),
+                })
+            }
+        }
+    }
     fn peek(&self) -> Option<&Token> {
         self.tokens.get(self.current)
     }
@@ -185,6 +258,7 @@ impl<'a> Parser<'a> {
             "エラー　英語の読みやすさのためのTOを消すのは腹切りされてもおかしくない。",
         )?;
         let val = self.expression()?;
+
         self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
         Ok(Statement::Set {
             name: name.literal,
