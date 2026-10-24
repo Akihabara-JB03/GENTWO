@@ -2,3 +2,6 @@
 *.gtw linguist-language=BASIC
 *.gt linguist-language=BASIC
 temp/** linguist-vendored
+# Generated files
+src/IDE/windows/** linguist-generated=true
+src/IDE/linux/** linguist-generated=true
