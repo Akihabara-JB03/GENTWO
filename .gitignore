@@ -1,6 +1,6 @@
-/bin/*.exe
-/bin/*.bin
-/bin/*.a
-/bin/*.o
+/**/*.exe
+/**/*.bin
+/**/*.a
+/**/*.o
 temp/
 target/

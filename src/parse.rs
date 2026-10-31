@@ -10,6 +10,7 @@
 */
 use crate::tokentype::TokenType;
 use std::ops::Range;
+
 #[derive(Clone)]
 pub struct Token {
     pub kind: TokenType,
@@ -20,7 +21,10 @@ pub struct Token {
 pub struct Parser<'a> {
     tokens: &'a [Token],
     current: usize,
+    LPflag: bool,
+    LPdepth: usize,
 }
+
 pub enum ParserError {
     UnexpectedToken {
         expected: Vec<TokenType>,
@@ -48,13 +52,15 @@ pub enum ParserError {
         found: TokenType,
         span: Range<usize>,
         message: String,
-    }
+    },
 }
+
 enum TypeSpecifier {
     Int,
     Float,
     String,
 }
+
 pub enum Expr {
     Integer(i64),
     Float(f64),
@@ -71,6 +77,7 @@ pub enum Expr {
         right: Box<Expr>,
     },
 }
+
 pub enum Statement {
     Set { name: String, value: Expr },
     Displays { value: Expr },
@@ -79,6 +86,7 @@ pub enum Statement {
     Compare { value: Expr },
     Load { module: Token },
 }
+
 pub enum Operator {
     Add,
     Div,
@@ -91,7 +99,9 @@ pub enum Operator {
     Over,
     UnderOrEqual,
     OverOrEqual,
+    Equal,
 }
+
 pub enum WarningKind {
     ImplicitConversion,
     UnusedVariable,
@@ -101,9 +111,11 @@ pub struct Warning {
     pub kind: WarningKind,
     pub message: String,
 }
+
 pub struct Ast {
     Statements: Vec<Statement>,
 }
+
 pub struct PR {
     /*Parser Result*/
     pub ast: Ast,
@@ -111,11 +123,12 @@ pub struct PR {
 }
 
 impl<'a> Parser<'a> {
-    fn PTS(&mut self) /*Parser Type Specifier*/ -> Result<Option<TypeSpecifier>,ParserError> {
-        match self.peek().map(|token| token.kind) {
-            Some(TokenType::GT_LP) => {
+    fn PTS(&mut self) -> Result<Option<TypeSpecifier>, ParserError> {
+        match (self.LPflag, self.peek().map(|token| token.kind)) {
+            (false, Some(TokenType::GT_LP)) => {
                 self.advance();
-                let sfy = self.PTS();
+                self.LPflag = true;
+                let sfy = self.PTS()?;
                 if (self.peek().map(|token| token.kind) == Some(TokenType::GT_RP)) {
                     self.advance();
                     Ok(sfy)
@@ -123,28 +136,26 @@ impl<'a> Parser<'a> {
                     eof_check()?;
                     let token = self.peek().unwrap();
                     Err(ParserError::SfyAdmissibilityError {
-                        expected: vec![
-                            TokenType::GT_RP,
-                        ],
+                        expected: vec![TokenType::GT_RP],
                         found: token.kind,
                         span: token.span.clone(),
                         message: "`(`があるため`)`で対応させる必要があります。".to_string(),
                     })
                 }
             }
-            Some(TokenType::GT_SFY_INT) => {
+            (true, Some(TokenType::GT_SFY_INT)) => {
                 self.advance();
                 Ok(Some(TypeSpecifier::Int))
             }
-            Some(TokenType::GT_SFY_FLOAT) => {
+            (true, Some(TokenType::GT_SFY_FLOAT)) => {
                 self.advance();
                 Ok(Some(TypeSpecifier::Float))
             }
-            Some(TokenType::GT_SFY_STRING) => {
+            (true, Some(TokenType::GT_SFY_STRING)) => {
                 self.advance();
                 Ok(Some(TypeSpecifier::String))
             }
-            Some(TokenType::GT_NUL) => {
+            (true, Some(TokenType::GT_NUL)) => {
                 let token = self.advance();
 
                 Err(ParserError::NullExchangeError {
@@ -164,11 +175,13 @@ impl<'a> Parser<'a> {
                     ],
                     found: token.kind,
                     span: token.span.clone(),
-                    message: "INT型、FLOAT型、STRING型のどれかを型に入れてください。例：(STRING)".to_string(),
+                    message: "INT型、FLOAT型、STRING型のどれかを型に入れてください。例：(STRING)"
+                        .to_string(),
                 })
             }
         }
     }
+
     fn peek(&self) -> Option<&Token> {
         self.tokens.get(self.current)
     }
@@ -180,12 +193,15 @@ impl<'a> Parser<'a> {
         }
         token
     }
+
     fn is_at_end(&self) -> bool {
         self.current >= self.tokens.len()
     }
+
     fn check(&self, tokentype: TokenType) -> bool {
         self.peek().map(|token| token.kind) == Some(tokentype)
     }
+
     fn consume(&mut self, tokentype: TokenType, message: &str) -> Result<Token, ParserError> {
         let token = self.peek().cloned();
         if let Some(token) = token {
@@ -206,15 +222,23 @@ impl<'a> Parser<'a> {
             })
         }
     }
+
     fn parser_main(tokens: &[Token]) -> Result<PR, ParserError> {
-        let mut parser = Parser { tokens, current: 0 };
+        let mut parser = Parser {
+            tokens,
+            current: 0,
+            LPflag: false,
+            LPdepth: 0,
+        };
         parser.parse()
     }
+
     pub fn parse(&mut self) -> Result<PR, ParserError> {
         let mut statements = Vec::new();
         let mut warnings = Vec::new();
         while !self.is_at_end() {}
     }
+
     fn statement(&mut self) -> Result<Statement, ParserError> {
         let token = self.eof_check()?;
         match token.kind {
@@ -226,6 +250,7 @@ impl<'a> Parser<'a> {
             TokenType::GT_END => self.parse_end(),
         }
     }
+
     fn parse_displays(&mut self) -> Result<Statement, ParserError> {
         self.consume(
             TokenType::GT_DISPLAYS,
@@ -235,6 +260,7 @@ impl<'a> Parser<'a> {
         self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
         Ok(Statement::Displays { value })
     }
+
     fn parse_load(&mut self) -> Result<Statement, ParserError> {
         self.consume(
             TokenType::GT_LOAD,
@@ -247,6 +273,7 @@ impl<'a> Parser<'a> {
         self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
         Ok(Statement::Load { module })
     }
+
     fn parse_set(&mut self) -> Result<Statement, ParserError> {
         self.consume(TokenType::GT_SET, "エラー　変数の設定は、SET文に通ずる")?;
         let name = self.consume(
@@ -258,13 +285,14 @@ impl<'a> Parser<'a> {
             "エラー　英語の読みやすさのためのTOを消すのは腹切りされてもおかしくない。",
         )?;
         let val = self.expression()?;
-
+        
         self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
         Ok(Statement::Set {
             name: name.literal,
             value: val,
         })
     }
+
     fn parse_compare(&mut self) -> Result<Expr, ParserError> {
         self.consume(
             TokenType::GT_COMPARE,
@@ -291,24 +319,29 @@ impl<'a> Parser<'a> {
             right: Box::new(dst),
         })
     }
+
     fn parse_exit(&mut self) -> Result<Statement, ParserError> {
         self.advance();
         self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
         Ok(Statement::Exit)
     }
+
     fn parse_end(&mut self) -> Result<Statement, ParserError> {
         self.advance();
         self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
         Ok(Statement::End)
     }
+
     fn spc(&mut self) -> Result<Statement, ParserError> {
         let value = self.parse_compare()?;
         self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
         Ok(Statement::Compare { value })
     }
+
     fn expression(&mut self) -> Result<Expr, ParserError> {
         self.or()
     }
+
     fn or(&mut self) -> Result<Expr, ParserError> {
         let mut expr = self.and()?;
 
@@ -325,6 +358,7 @@ impl<'a> Parser<'a> {
 
         Ok(expr)
     }
+
     fn and(&mut self) -> Result<Expr, ParserError> {
         let mut expr = self.term()?;
         while self.peek().map(|token| token.kind) == Some(TokenType::GT_AND) {
@@ -338,6 +372,7 @@ impl<'a> Parser<'a> {
         }
         Ok(expr)
     }
+
     fn parse_equal(&mut self) -> Result<Operator, ParserError> {
         if self.peek().map(|token| token.kind) == Some(TokenType::GT_NOT) {
             self.advance();
@@ -365,6 +400,7 @@ impl<'a> Parser<'a> {
         self.consume(TokenType::GT_EQ, "EQUALが必要です。")?;
         Ok(Operator::Equal)
     }
+
     fn eof_check(&self) -> Result<&Token, ParserError> {
         match self.peek() {
             Some(token) => Ok(token),
@@ -373,6 +409,7 @@ impl<'a> Parser<'a> {
             }),
         }
     }
+
     fn term(&mut self) -> Result<Expr, ParserError> {
         let mut expr = self.factor()?;
         while self.peek().map(|token| token.kind) == Some(TokenType::GT_PLUS)
@@ -402,6 +439,7 @@ impl<'a> Parser<'a> {
         }
         Ok(expr)
     }
+
     fn factor(&mut self) -> Result<Expr, ParserError> {
         let mut expr = self.unary()?;
         while self.peek().map(|token| token.kind) == Some(TokenType::GT_TIMES)
@@ -431,6 +469,7 @@ impl<'a> Parser<'a> {
         }
         Ok(expr)
     }
+
     fn unary(&mut self) -> Result<Expr, ParserError> {
         match self.peek().map(|token| token.kind) {
             Some(TokenType::GT_MINUS) => {
@@ -444,6 +483,7 @@ impl<'a> Parser<'a> {
             _ => self.primary(),
         }
     }
+
     fn primary(&mut self) -> Result<Expr, ParserError> {
         let token = self.eof_check()?;
         match token.kind {
@@ -493,7 +533,7 @@ impl<'a> Parser<'a> {
             TokenType::GT_NUL => {
                 self.advance();
                 Ok(Expr::Null)
-            },
+            }
 
             _ => {
                 // UnexpectedToken

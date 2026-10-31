@@ -7,4 +7,5 @@ RequestExecutionLevel user
 
 Section "GENTWO"
     SetOutPath "$INSTDIR"
+    File /r "../../*"
 SectionEnd
