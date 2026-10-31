@@ -4,3 +4,4 @@
 /**/*.o
 temp/
 target/
+src/dist/
