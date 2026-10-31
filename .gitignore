@@ -2,6 +2,11 @@
 /**/*.bin
 /**/*.a
 /**/*.o
+/**/*.dll
+/**/*.com
+/**/*.elf
+/**/*.dylib
+/**/*.so
 temp/
 target/
 src/dist/
