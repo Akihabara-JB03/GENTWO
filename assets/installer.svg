@@ -1,0 +1,40 @@
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg">
+ <g id="Layer_1">
+  <title>Layer 1</title>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_2" y2="187.99999" x2="176.99998" y1="69.99999" x1="74.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_3" y2="65.99999" x2="172.99998" y1="175.99999" x1="37.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_4" y2="89.99999" x2="224.99998" y1="209.99999" x1="88.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_5" y2="145.99999" x2="226.99998" y1="86.99999" x1="41.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_6" y2="28" x2="165.99998" y1="193.99999" x1="82.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_7" y2="163.99999" x2="213.99998" y1="130.99999" x1="61.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_8" y2="67.99999" x2="185.99998" y1="202.99999" x1="118.99998" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_9" y2="211.99999" x2="153.99998" y1="74.99999" x1="46.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_10" y2="85.99999" x2="185.99998" y1="188.99999" x1="89.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_11" y2="223.99999" x2="176.99998" y1="49.99999" x1="57.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_12" y2="69.99999" x2="201.99998" y1="184.99999" x1="51.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_13" y2="199.99999" x2="199.99998" y1="-2" x1="41.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_14" y2="135.99999" x2="203.99998" y1="171.99999" x1="51.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_15" y2="214.99999" x2="183.99998" y1="87.99999" x1="75.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_16" y2="131.99999" x2="212.99998" y1="184.99999" x1="63.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_17" y2="193.99999" x2="219.99998" y1="92.99999" x1="78.99999" stroke="#000" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_18" y2="131.99999" x2="195.99998" y1="179.99999" x1="67.99999" stroke="#000" fill="none"/>
+  <text xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="24" id="svg_20" y="248.99999" x="79.99999" stroke-width="0" stroke="#000" fill="#000000">Installer</text>
+  <text transform="rotate(90 24.599 156.333)" font-style="normal" font-weight="normal" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="24" id="svg_22" y="166.99999" x="-28.00001" stroke-width="0" stroke="#000" fill="#000000">GENTWO</text>
+  <text xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="24" id="svg_23" y="26" x="72.99999" stroke-width="0" stroke="#000" fill="#000000">Uninstaller</text>
+  <text transform="rotate(-90 283.599 53.3333)" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="24" id="svg_25" y="63.99999" x="230.99998" stroke-width="0" stroke="#000" fill="#000000">GENTWO</text>
+  <text transform="rotate(-90 243.599 66.3333)" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="24" id="svg_26" y="76.99999" x="190.99998" stroke-width="0" stroke="#000" fill="#000000">GENTWO</text>
+  <line stroke="#000" id="svg_27" y2="89.99999" x2="14.00002" y1="1" x1="60.00002" fill="none"/>
+  <line id="svg_28" y2="147.99999" x2="179.99998" y1="28" x1="19.99999" stroke="#000" fill="none"/>
+  <line id="svg_29" y2="86.99999" x2="175.99998" y1="168.99999" x1="91.99999" stroke="#000" fill="none"/>
+  <line id="svg_30" y2="55.99999" x2="125.99998" y1="162.99999" x1="56.99999" stroke="#000" fill="none"/>
+  <line id="svg_31" y2="163.99999" x2="103.99999" y1="163.99999" x1="77.99999" stroke="#000" fill="none"/>
+  <line id="svg_32" y2="124.99999" x2="159.99998" y1="48.99999" x1="24.99999" stroke="#000" fill="none"/>
+  <line id="svg_33" y2="20" x2="69.99999" y1="146.99999" x1="71.99999" stroke="#000" fill="none"/>
+  <line id="svg_34" y2="140.99999" x2="163.99998" y1="63.99999" x1="13.99999" stroke="#000" fill="none"/>
+  <line id="svg_35" y2="169.99999" x2="167.99998" y1="43.99999" x1="18.99999" stroke="#000" fill="none"/>
+  <line id="svg_36" y2="85.99999" x2="184.99998" y1="195.99999" x1="93.99999" stroke="#000" fill="none"/>
+  <line id="svg_37" y2="187.99999" x2="202.99998" y1="187.99999" x1="64.99999" stroke="#000" fill="none"/>
+  <line id="svg_38" y2="85.99999" x2="220.99998" y1="223.99999" x1="62.99999" stroke="#000" fill="none"/>
+ </g>
+
+</svg>

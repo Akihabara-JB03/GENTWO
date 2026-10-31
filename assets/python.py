@@ -31,5 +31,5 @@ def svg_to_ico(svg_path, ico_path):
     )
 
 if __name__ == "__main__":
-    svg_to_ico("gentwo_ico.svg", "gentwo.ico")
+    svg_to_ico("installer.svg", "gentwo_installer.ico")
     print("Conversion completed!")
