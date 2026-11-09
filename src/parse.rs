@@ -79,7 +79,7 @@ pub enum Expr {
 }
 
 pub enum Statement {
-    Set { name: String, value: Expr },
+    Set { name: String, value: Expr,mold: TypeSpecifier },
     Displays { value: Expr },
     Exit,
     End,
@@ -128,13 +128,19 @@ impl<'a> Parser<'a> {
             (false, Some(TokenType::GT_LP)) => {
                 self.advance();
                 self.LPflag = true;
-                let sfy = self.PTS()?;
+                let sfy = self.PTS();
+                if (sfy.is_err()) {
+                    self.LPflag = false;
+                    return sfy;
+                }
                 if (self.peek().map(|token| token.kind) == Some(TokenType::GT_RP)) {
+                    self.LPflag = false;
                     self.advance();
-                    Ok(sfy)
+                    sfy
                 } else {
                     eof_check()?;
                     let token = self.peek().unwrap();
+                    self.LPflag = false;
                     Err(ParserError::SfyAdmissibilityError {
                         expected: vec![TokenType::GT_RP],
                         found: token.kind,
@@ -156,6 +162,7 @@ impl<'a> Parser<'a> {
                 Ok(Some(TypeSpecifier::String))
             }
             (true, Some(TokenType::GT_NUL)) => {
+                self.LPflag = false;
                 let token = self.advance();
 
                 Err(ParserError::NullExchangeError {
@@ -166,7 +173,7 @@ impl<'a> Parser<'a> {
             _ => {
                 self.eof_check()?;
                 let token = self.peek().unwrap();
-
+                self.LPflag = false;
                 Err(ParserError::SfyAdmissibilityError {
                     expected: vec![
                         TokenType::GT_SFY_INT,
@@ -236,7 +243,9 @@ impl<'a> Parser<'a> {
     pub fn parse(&mut self) -> Result<PR, ParserError> {
         let mut statements = Vec::new();
         let mut warnings = Vec::new();
-        while !self.is_at_end() {}
+        while !self.is_at_end() {
+
+        }
     }
 
     fn statement(&mut self) -> Result<Statement, ParserError> {
@@ -285,11 +294,15 @@ impl<'a> Parser<'a> {
             "エラー　英語の読みやすさのためのTOを消すのは腹切りされてもおかしくない。",
         )?;
         let val = self.expression()?;
-        
+        let mold = self.PTS()?;
+        if (mold == None) {
+            
+        }
         self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
         Ok(Statement::Set {
             name: name.literal,
             value: val,
+            mold,
         })
     }
 

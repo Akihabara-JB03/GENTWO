@@ -13,8 +13,8 @@ pub enum TokenType {
     GT_FLOAT,
     GT_STRING,
     GT_PLUS,
-    GT_INDENT,
-    GT_DEDENT,
+    GT_INDENT, // NOT USED
+    GT_DEDENT, // NOT USED
     GT_MINUS,
     GT_DIVISION,
     GT_TIMES,
