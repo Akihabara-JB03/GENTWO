@@ -8,7 +8,7 @@
                 | |____________/| Last Commit: Oct 12, 2026   |  \/        \________/
                 |______________/|_____________________________|
 */
-use crate::tokentype::TokenType;
+use crate::{Expr::String, TypeSpecifier::String, tokentype::TokenType};
 use std::ops::Range;
 
 #[derive(Clone)]
@@ -296,7 +296,20 @@ impl<'a> Parser<'a> {
         let val = self.expression()?;
         let mold = self.PTS()?;
         if (mold == None) {
-            
+            match (val) {
+                Expr::Integer(_) => {
+                    mold = TypeSpecifier::Int;
+                }
+                Expr::Float(_) => {
+                    mold = TypeSpecifier::Float;
+                }
+                Expr::String(_) => {
+                    mold = TypeSpecifier::String;
+                }
+                _ => {
+
+                }
+            }
         }
         self.consume(TokenType::GT_PERIOD, "文の終わりはピ・リ・オ・ド！！")?;
         Ok(Statement::Set {

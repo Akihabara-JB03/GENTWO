@@ -1,0 +1,8 @@
+[package]
+name = "gentwo-ide"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+wry = "0.57.1"
+tao = "0.37.1"
